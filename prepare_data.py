@@ -96,7 +96,7 @@ class train_test_split(aug_data):
         return buf, total
 
 def main():
-    test = train_test_split(path_ctrl="/home/ibot/Desktop/image/Original/Ctrl",path_cm="/home/ibot/Desktop/image/Original/CM")
+    test = train_test_split(path_ctrl=os.getcwd()+"/A549 PCM image dataset/Original/Ctrl",path_cm=os.getcwd()+"/A549 PCM image dataset/Original/CM")
     start = time.time()
     test._split()
     print(test._train_set[0][0])
