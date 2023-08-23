@@ -2,7 +2,7 @@
 
 A simple residual block structure is introduced in the CNN:
 
-<img src="./plotnn/model_vis.png" width="60%" height="60%">
+<img src="./plotnn/model_vis.png" width="80%" height="80%">
 
 The dataset for training the model is compressed and encrypted. 
 
