@@ -1,6 +1,8 @@
+import os
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from prepare_data import train_test_split, aug_data
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -64,7 +66,7 @@ class model():
         y = [i[1] for i in dataset]
         return (np.array(x), np.array(y))
 
-    def _model_base(shp, w=None, h=None):
+    def _model_base(shp):
         w_i = keras.initializers.GlorotNormal(seed=1000)
         b_i = keras.initializers.Zeros()
 
@@ -128,3 +130,18 @@ class model():
         self.acc = float((cm[0,0]+cm[1,1])/(cm[0,0]+cm[0,1]+cm[1,0]+cm[1,1]))
         print("test_acc", self.acc)
 
+def main():
+    data = train_test_split(path_ctrl=os.getcwd()+"/A549 PCM image dataset/Original/Ctrl",path_cm=os.getcwd()+"/A549 PCM image dataset/Original/CM")
+    data._split()
+    classifier = model(train=data._train_set,validation=data._validation_set,test=data._test_set)
+    print(classifier._model.summary())
+    classifier._compile()
+    try:
+        classifier._fit()
+        # classifier.view_learning_curve()
+        # classifier.predict();
+    except Exception as exception:
+        print(exception)
+        
+if __name__ == "__main__":
+    main()
