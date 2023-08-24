@@ -116,6 +116,9 @@ class model():
                     validation_data=(self._validation_set[0], self._validation_set[1]),
                    callbacks=[self.history])
     
+    def _save(self, path=os.getcwd(), name="mymodel.h5"):
+        self._model.save(os.path.join(path,name))
+
     def view_learning_curve(self):
         self.history.loss_plot('epoch')
         self.history.show()
@@ -126,9 +129,9 @@ class model():
 
     def predict(self):
         cm =np.array(tf.math.confusion_matrix(predictions=
-                                              np.array(tf.round(model.predict(self._test_set[0]))), 
-                                              labels=self._test_set[1], 
-                                              num_classes=2))
+                                            np.array(tf.round(model.predict(self._test_set[0]))), 
+                                            labels=self._test_set[1], 
+                                            num_classes=2))
         self.acc = float((cm[0,0]+cm[1,1])/(cm[0,0]+cm[0,1]+cm[1,0]+cm[1,1]))
         print("test_acc", self.acc)
 
@@ -140,6 +143,7 @@ def main():
     classifier._compile()
     try:
         classifier._fit(batch_size=21, epochs=30)
+        classifier._save()
         # classifier.view_learning_curve()
         # classifier.predict();
     except Exception as exception:
