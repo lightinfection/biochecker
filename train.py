@@ -58,7 +58,9 @@ class model():
         self._validation_set = self.load_img(validation)
         self._test_set = self.load_img(test)
         self.history = LossHistory()
-        inputs, outputs = self._model_base(shp=self._train_set.shape[1:])
+        ori_shape = self._train_set[0].shape[1:]
+        print("after augmentation, the image shape is", ori_shape, "now \n")
+        inputs, outputs = self._model_base(ori_shape)
         self._model = keras.Model(inputs, outputs)
     
     def load_img(self, dataset):
@@ -66,14 +68,14 @@ class model():
         y = [i[1] for i in dataset]
         return (np.array(x), np.array(y))
 
-    def _model_base(shp):
+    def _model_base(self, shp):
         w_i = keras.initializers.GlorotNormal(seed=1000)
         b_i = keras.initializers.Zeros()
 
-        inputs = keras.Input(shape=(256, 340, 1))
-        x = layers.Resizing(256,256)(inputs)
+        inputs = keras.Input(shape=shp)
+        x = layers.Resizing(min(shp[:-1]),min(shp[:-1]))(inputs)
         x = layers.Rescaling(1./255)(x)
-        x = layers.Conv2D(filters=32, kernel_size=(5,5), strides=(1,1), activation='relu', input_shape=(256,256,1), kernel_initializer=w_i, bias_initializer=b_i)(x)
+        x = layers.Conv2D(filters=32, kernel_size=(5,5), strides=(1,1), activation='relu', input_shape=(min(shp[:-1]),min(shp[:-1]),1), kernel_initializer=w_i, bias_initializer=b_i)(x)
         x = layers.BatchNormalization()(x)
         x = layers.MaxPool2D(pool_size=(3,3), strides=(2,2))(x)
 
@@ -102,17 +104,17 @@ class model():
 
         return inputs, outputs
 
-    def _compile(self):
+    def _compile(self, lr=1e-3, eps=1e-5):
         self._model.compile(loss="binary_crossentropy",
-                    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-3,epsilon=1e-5),
+                    optimizer=tf.keras.optimizers.Adam(learning_rate=lr,epsilon=eps),
                     metrics =['accuracy'])
     
     def _fit(self, batch_size, epochs):
-        self._model.fit(self._train_set,
+        self._model.fit(x=self._train_set[0], y=self._train_set[1],
                     batch_size=batch_size,
                     epochs=epochs,
-                    validation_data=self._validation_set,
-                    callbacks=[self.history])
+                    validation_data=(self._validation_set[0], self._validation_set[1]),
+                   callbacks=[self.history])
     
     def view_learning_curve(self):
         self.history.loss_plot('epoch')
@@ -137,7 +139,7 @@ def main():
     print(classifier._model.summary())
     classifier._compile()
     try:
-        classifier._fit()
+        classifier._fit(batch_size=21, epochs=30)
         # classifier.view_learning_curve()
         # classifier.predict();
     except Exception as exception:
