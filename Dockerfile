@@ -8,6 +8,7 @@ ${NVIDIA_DRIVER_CAPABILITIES:+$NVIDIA_DRIVER_CAPABILITIES,}graphics
 
 RUN apt-get update && \
 apt-get install -y \
+apt-utils \
 p7zip-full
 
 RUN cd /home/ && git clone https://github.com/lightinfection/cell_recognition.git
